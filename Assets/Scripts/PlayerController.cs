@@ -3,23 +3,27 @@ using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float rotationSpeed = 5f;
-    [SerializeField] float movementMultiplier = 2f;
+    [SerializeField] float rotationSpeed = 5f; // deg / second
+    [SerializeField] float moveSpeed = 2f;
     [SerializeField] Transform leftFirePoint;
     [SerializeField] Transform rightFirePoint;
     [SerializeField] float projectileSpeed = 2f;
     [SerializeField] float projectileTime = 2f;
     [SerializeField] GameObject position;
     [SerializeField] GameObject UI;
-    Rigidbody2D rb;
+    private int[] shopLevels = new int[] { 1, 1, 1, 1, 1, 1, 1 };
+    private Rigidbody2D rb;
+    private GameObject playerSprite;
     private float coins = 0f;
     private TextMeshProUGUI coinsText;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        GameObject coinsCanvas = GameObject.Find("Coins"); // Corrected line
+        GameObject coinsCanvas = GameObject.Find("Coins");
         coinsText = coinsCanvas.GetComponentInChildren<TextMeshProUGUI>();
+
+        playerSprite = GameObject.Find("Sprite");
     }
 
     void Update()
@@ -32,6 +36,16 @@ public class PlayerController : MonoBehaviour
         {
             FireProjectiles();
         }
+
+        for (int i = 0; i < shopLevels.Length; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i) && shopLevels[i] < 10)
+            {
+                shopLevels[i]++;
+                ShopController.instance.UpdateShopItem(i + 1, shopLevels[i]);
+                Debug.Log("level of shop " + (i + 1) + " increased to " + shopLevels[i]);
+            }
+        }
     }
 
     void FixedUpdate()
@@ -41,40 +55,33 @@ public class PlayerController : MonoBehaviour
 
     void RotatePlayer()
     {
-        GameObject playerSprite = GameObject.Find("Sprite");
-        Vector3 mousePosition = Input.mousePosition;
-        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+        float rotationAmount = 0f;
 
-        Vector2 direction = new Vector2(mouseWorldPosition.x - playerSprite.transform.position.x, mouseWorldPosition.y - playerSprite.transform.position.y);
-
-        float angleRadians = Mathf.Atan2(direction.y, direction.x);
-        float angleDegrees = angleRadians * Mathf.Rad2Deg;
-        Quaternion rotation = Quaternion.Euler(new Vector3(0f, 0f, angleDegrees));
-        playerSprite.transform.rotation = Quaternion.Slerp(playerSprite.transform.rotation, rotation, rotationSpeed * Time.deltaTime);
+        if (Input.GetKey(KeyCode.A))
+        {
+            rotationAmount += rotationSpeed * Time.deltaTime;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            rotationAmount -= rotationSpeed * Time.deltaTime;
+        }
+        playerSprite.transform.Rotate(Vector3.forward, rotationAmount);
     }
+
 
     void MovePlayer()
     {
-        float horizontalAxis = Input.GetAxis("Horizontal");
-        float verticalAxis = Input.GetAxis("Vertical");
-
-        Vector2 movement = new Vector2(horizontalAxis, verticalAxis) * movementMultiplier * Time.fixedDeltaTime;
-        Vector2 newPosition = rb.position + movement;
-
-        newPosition.x = Mathf.Clamp(newPosition.x, -50f, 50f);
-        newPosition.y = Mathf.Clamp(newPosition.y, -50f, 50f);
-
-        rb.MovePosition(newPosition);
+        rb.velocity = playerSprite.transform.right * moveSpeed;
     }
 
 
     void FireProjectiles()
     {
-        GameObject leftProjectile = Instantiate(Settings.instance.projectilePrefab, leftFirePoint.position, Quaternion.identity);
+        GameObject leftProjectile = Instantiate(Settings.instance.projectilePrefab, leftFirePoint.position, Quaternion.identity, Settings.instance.projectileContainer);
         Rigidbody2D leftRigidbody = leftProjectile.GetComponent<Rigidbody2D>();
         leftRigidbody.velocity = leftFirePoint.up * projectileSpeed;
 
-        GameObject rightProjectile = Instantiate(Settings.instance.projectilePrefab, rightFirePoint.position, Quaternion.identity);
+        GameObject rightProjectile = Instantiate(Settings.instance.projectilePrefab, rightFirePoint.position, Quaternion.identity, Settings.instance.projectileContainer);
         Rigidbody2D rightRigidbody = rightProjectile.GetComponent<Rigidbody2D>();
         rightRigidbody.velocity = -rightFirePoint.up * projectileSpeed;
 
@@ -94,5 +101,4 @@ public class PlayerController : MonoBehaviour
         coins += value;
         coinsText.text = "$" + coins;
     }
-
 }

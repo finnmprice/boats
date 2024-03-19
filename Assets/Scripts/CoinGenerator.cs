@@ -20,7 +20,7 @@ public class CoinGenerator : MonoBehaviour
             float randomX = Random.Range(minX, maxX);
             float randomY = Random.Range(minY, maxY);
 
-            GameObject coin = Instantiate(Settings.instance.coinPrefab, new Vector3(randomX, randomY, 0f), Quaternion.identity);
+            GameObject coin = Instantiate(Settings.instance.coinPrefab, new Vector3(randomX, randomY, 0f), Quaternion.identity, Settings.instance.coinContainer);
             coin.name = "Coin";
         }
     }
