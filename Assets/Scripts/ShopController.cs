@@ -15,8 +15,7 @@ public class ShopController : MonoBehaviour
             shopItem shopItemComponent = shopItemTransform.GetComponent<shopItem>();
             if (shopItemComponent != null && shopItemComponent.key == keyNumber)
             {
-                shopItemComponent.shopItemLevel = newLevel;
-                shopItemComponent.UpdateShop();
+                shopItemComponent.UpdateShop(newLevel);
                 break; 
             }
         }

@@ -6,9 +6,16 @@ public class shopItem : MonoBehaviour
     [SerializeField] TextMeshProUGUI keyText;
     [SerializeField] TextMeshProUGUI itemNameText;
     [SerializeField] TextMeshProUGUI itemPriceText;
+    [SerializeField] GameObject upgradeProgress;
+    private RectTransform progressTransform;
 
     public int key;
-    public int shopItemLevel;
+    private int shopItemLevel;
+
+    void Start()
+    {
+        progressTransform = upgradeProgress.GetComponent<RectTransform>();
+    }
 
     public void Setup(int _key, string _shopItemName)
     {
@@ -20,13 +27,11 @@ public class shopItem : MonoBehaviour
         key = _key;
     }
     
-    public void UpdateShop() {
-        itemPriceText.text = (shopItemLevel < 10) ? ("$" + (shopItemLevel * 10).ToString()) : ("max");
-    }
+    public void UpdateShop(int newLevel) {
+        shopItemLevel = newLevel;
 
-    void Start()
-    {
-
+        itemPriceText.text = (newLevel < 10) ? ("$" + (newLevel * 10).ToString()) : ("max");
+        progressTransform.sizeDelta = new Vector2(108f / 10f * newLevel, progressTransform.sizeDelta.y);
     }
 
     void Update()

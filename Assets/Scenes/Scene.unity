@@ -231,7 +231,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10, y: -40}
+  m_AnchoredPosition: {x: 5, y: -28}
   m_SizeDelta: {x: 125, y: 200}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &143980437
@@ -252,7 +252,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 3
+  m_Spacing: 1.1
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -291,14 +291,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dd35b11ea74a48e49636be21803b9c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 180
   moveSpeed: 2
   leftFirePoint: {fileID: 2114373151}
   rightFirePoint: {fileID: 1764066265}
   projectileSpeed: 5
-  projectileTime: 2
   position: {fileID: 1542110434}
   UI: {fileID: 314202357}
+  fireCooldown: 0.75
 --- !u!4 &267131754
 Transform:
   m_ObjectHideFlags: 0
@@ -435,10 +434,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: name
+  m_text: NAME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8c8d17b3815b78844aee336bb808ed82, type: 2}
-  m_sharedMaterial: {fileID: -8789916098886059522, guid: 8c8d17b3815b78844aee336bb808ed82, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 9fb096a3b644e97449032d6adc026f36, type: 2}
+  m_sharedMaterial: {fileID: 8806435587578494079, guid: 9fb096a3b644e97449032d6adc026f36, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -839,7 +838,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.7058824}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -978,7 +977,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.5585173, g: 0.58944577, b: 0.7264151, a: 0}
+  m_BackGroundColor: {r: 0.43676576, g: 0.47205415, b: 0.6132076, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1071,8 +1070,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10, y: -10}
-  m_SizeDelta: {x: 125, y: 25}
+  m_AnchoredPosition: {x: 5, y: -5}
+  m_SizeDelta: {x: 125, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &571401543
 MonoBehaviour:
@@ -1113,7 +1112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.7058824}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1279,8 +1278,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: $0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8c8d17b3815b78844aee336bb808ed82, type: 2}
-  m_sharedMaterial: {fileID: -8789916098886059522, guid: 8c8d17b3815b78844aee336bb808ed82, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fcf0fda79aa15f444a2ec4909477cd8e, type: 2}
+  m_sharedMaterial: {fileID: 8806435587578494079, guid: fcf0fda79aa15f444a2ec4909477cd8e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1312,7 +1311,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -2411,8 +2410,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Coins
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8c8d17b3815b78844aee336bb808ed82, type: 2}
-  m_sharedMaterial: {fileID: -8789916098886059522, guid: 8c8d17b3815b78844aee336bb808ed82, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fcf0fda79aa15f444a2ec4909477cd8e, type: 2}
+  m_sharedMaterial: {fileID: 8806435587578494079, guid: fcf0fda79aa15f444a2ec4909477cd8e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2444,7 +2443,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 4
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
