@@ -43,6 +43,13 @@ function tick() {
 
     player.x += dx;
     player.y += dy;
+
+    let maxBounds = 100 * 32;
+
+    if (player.x < 0) player.x = 0;
+    if (player.y < 0) player.y = 0;
+    if (player.x > maxBounds) player.x = maxBounds;
+    if (player.y > maxBounds) player.y = maxBounds;
   }
 
   io.emit('players', players);
@@ -59,8 +66,8 @@ async function main() {
 
     players.push({
       id: socket.id,
-      x: 0,
-      y: 0,
+      x: 100 * 32 / 2,
+      y: 100 * 32 / 2,
       rotation: 0
     });
   

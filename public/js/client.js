@@ -64,7 +64,6 @@ function loop() {
         camX = myPlayer.x - canvasEl.width / 2;
         camY = myPlayer.y - canvasEl.height / 2;
     }
-    console.log(camX, camY)
     for (let row = 0; row < MAP_SIZE; row++) {
         for (let col = 0; col < MAP_SIZE; col++) {
             canvas.drawImage(gridImage,
@@ -76,7 +75,6 @@ function loop() {
     }
     
     for(const player of players) {
-        console.log(player.rotation);
         canvas.save();
         canvas.translate(player.x - camX, player.y - camY);
         canvas.rotate((player.rotation + 90) * Math.PI / 180);
