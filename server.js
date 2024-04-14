@@ -10,6 +10,7 @@ const io = new Server(httpServer);
 const TICK_RATE = 90;
 
 let players = [];
+let projectiles = [];
 let playerCoins = [];
 let inputsMap = {};
 
@@ -27,6 +28,24 @@ function tick() {
   const now = Date.now();
   const deltaTime = (now - lastTickTime) / 1000;
   lastTickTime = now;
+  
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const projectile = projectiles[i];
+    
+    const angleInRadians = projectile.rotation * Math.PI / 180;
+    const dy = Math.sin(angleInRadians) * 3 * moveSpeed * deltaTime;
+    const dx = Math.cos(angleInRadians) * 3 * moveSpeed * deltaTime;
+    projectile.x += dx;
+    projectile.y += dy;
+    
+    const currentTime = Date.now();
+    if (currentTime - projectile.creationTime >= projectile.duration) {
+      projectiles.splice(i, 1);
+    }
+
+    io.emit('projectiles', projectiles);
+  }
+
 
   for (const player of players) {
     const inputs = inputsMap[player.id];
@@ -102,6 +121,31 @@ async function main() {
       playerCoin.coins += coins;
     });
 
+    socket.on('fireProjectile', (projectile) => {
+      var player = players.find((player) => player.id === socket.id);
+      var rotationRad = player.rotation * Math.PI / 180;
+      const currentTime = Date.now();
+
+      projectiles.push({
+        id: socket.id,
+        x: player.x + 30 * Math.sin(-rotationRad),
+        y: player.y + 30 * Math.cos(rotationRad),
+        rotation: player.rotation + 90,
+        size: 12,
+        creationTime: currentTime,
+        duration: 1000
+      });
+
+      projectiles.push({
+        id: socket.id,
+        x: player.x - 30 * Math.sin(-rotationRad),
+        y: player.y - 30 * Math.cos(rotationRad),
+        rotation: player.rotation - 90,
+        size: 12,
+        creationTime: currentTime,
+        duration: 1000
+      });
+    });
 
     socket.on('upgrade', (upgrade) => {
       var player = players.find((player) => player.id === socket.id);

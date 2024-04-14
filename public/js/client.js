@@ -12,6 +12,7 @@ canvasEl.height = window.innerHeight;
 const canvas = canvasEl.getContext("2d");
 
 let players = [];
+let projectiles = [];
 let leaderboard = [];
 let coins = 0;
 
@@ -27,10 +28,22 @@ socket.on('players', (serverPlayers) => {
     players = serverPlayers;
 })
 
+socket.on('projectiles', (serverProjectiles) => {
+    projectiles = serverProjectiles;
+})
+
 socket.on('coinUpdate', (coinsNew) => {
     coins = coinsNew;
     console.log(coins)
 })
+
+window.addEventListener('click', () => {
+    fireProjectile();
+});
+
+function fireProjectile() {
+    socket.emit('fireProjectile', true);
+}
 
 const inputs = {
     left: false,
@@ -49,6 +62,9 @@ window.addEventListener('keydown', (e) => {
     }
     if(e.key === 'd' || e.key === 'ArrowRight') {
         inputs.right = true;
+    }
+    if(e.key === ' ') {
+        fireProjectile();
     }
     if(e.key === 'v') {
         socket.emit('upgrade', 'turnSpeed');
@@ -92,6 +108,13 @@ function loop() {
         }
     }
     
+    for(const projectile of projectiles) {
+        canvas.save();
+        canvas.translate(projectile.x - camX, projectile.y - camY);
+        drawCircle(0, 0, projectile.size, '#6e6c6e');
+        canvas.restore();
+    };
+    
     for(const player of players) {
         canvas.save();
         canvas.translate(player.x - camX, player.y - camY);
@@ -99,7 +122,7 @@ function loop() {
         canvas.translate(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2);
         canvas.drawImage(boat, 0, 0, PLAYER_SIZE, PLAYER_SIZE);
         canvas.restore();
-
+        
         canvas.save();
         canvas.translate(player.x - camX, player.y - camY);
         canvas.font = "32px doblon";
@@ -115,29 +138,41 @@ function loop() {
         canvas.save();
         canvas.translate(player.x - camX, player.y - camY);
         canvas.fillStyle = '#4d4c4c';
-        roundedRect(canvas, -75 / 2, 0 + 55, 75, 15, 6);
+        roundedRect(-75 / 2, 0 + 55, 75, 15, 6);
         canvas.fillStyle = '#79d544';
-        roundedRect(canvas, -68 / 2, 0 + 55 + 7.5 / 2, player.health * 0.68, 7.5, 7.5/2);
+        roundedRect(-68 / 2, 0 + 55 + 7.5 / 2, player.health * 0.68, 7.5, 7.5/2);
         canvas.restore();
     }
-
+    
+    
     window.requestAnimationFrame(loop);
 }
 
 
-function roundedRect(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.arc(x + width - radius, y + radius, radius, Math.PI * 1.5, Math.PI * 2);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.arc(x + width - radius, y + height - radius, radius, 0, Math.PI * 0.5);
-    ctx.lineTo(x + radius, y + height);
-    ctx.arc(x + radius, y + height - radius, radius, Math.PI * 0.5, Math.PI);
-    ctx.lineTo(x, y + radius);
-    ctx.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5);
-    ctx.closePath();
-    ctx.fill();
+function roundedRect(x, y, width, height, radius) {
+    canvas.beginPath();
+    canvas.moveTo(x + radius, y);
+    canvas.lineTo(x + width - radius, y);
+    canvas.arc(x + width - radius, y + radius, radius, Math.PI * 1.5, Math.PI * 2);
+    canvas.lineTo(x + width, y + height - radius);
+    canvas.arc(x + width - radius, y + height - radius, radius, 0, Math.PI * 0.5);
+    canvas.lineTo(x + radius, y + height);
+    canvas.arc(x + radius, y + height - radius, radius, Math.PI * 0.5, Math.PI);
+    canvas.lineTo(x, y + radius);
+    canvas.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5);
+    canvas.closePath();
+    canvas.fill();
 }
+
+function drawCircle(x, y, size, color) {
+    canvas.beginPath();
+    canvas.arc(x, y, size, 0, Math.PI * 2);
+    canvas.fillStyle = color;
+    canvas.fill();
+    canvas.strokeStyle = 'black';
+    canvas.lineWidth = 1.5;
+    canvas.stroke();
+    canvas.closePath();
+  }
 
 window.requestAnimationFrame(loop);
