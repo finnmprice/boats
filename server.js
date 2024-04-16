@@ -14,7 +14,7 @@ let projectiles = [];
 let playerCoins = [];
 let inputsMap = {};
 
-const moveSpeed = 100;
+const moveSpeed = 125;
 
 const baseRotSpeed = 90;
 
@@ -28,13 +28,13 @@ function tick() {
   const now = Date.now();
   const deltaTime = (now - lastTickTime) / 1000;
   lastTickTime = now;
-  
+
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const projectile = projectiles[i];
     
     const angleInRadians = projectile.rotation * Math.PI / 180;
-    const dy = Math.sin(angleInRadians) * 3 * moveSpeed * deltaTime;
-    const dx = Math.cos(angleInRadians) * 3 * moveSpeed * deltaTime;
+    const dy = Math.sin(angleInRadians) * 300 * deltaTime;
+    const dx = Math.cos(angleInRadians) * 300 * deltaTime;
     projectile.x += dx;
     projectile.y += dy;
     
@@ -59,6 +59,10 @@ function tick() {
       if (player.rotation < 0) {
         player.rotation += 360;
       }
+    }
+
+    if (inputs.e) {
+      fireProjectile(player)
     }
 
     const angleInRadians = player.rotation * Math.PI / 180;
@@ -108,6 +112,8 @@ async function main() {
         turnSpeed: { name: "turn speed", level: 0 },
         viewDistance: { name: "view distance", level: 0 }
       },
+      lastShotTime: 500,
+      fireCooldown: 400,
       coins: 0,
       username: "SPOOF"
     });
@@ -123,29 +129,8 @@ async function main() {
 
     socket.on('fireProjectile', (projectile) => {
       var player = players.find((player) => player.id === socket.id);
-      var rotationRad = player.rotation * Math.PI / 180;
-      const currentTime = Date.now();
-
-      projectiles.push({
-        id: socket.id,
-        x: player.x + 30 * Math.sin(-rotationRad),
-        y: player.y + 30 * Math.cos(rotationRad),
-        rotation: player.rotation + 90,
-        size: 12,
-        creationTime: currentTime,
-        duration: 1000
-      });
-
-      projectiles.push({
-        id: socket.id,
-        x: player.x - 30 * Math.sin(-rotationRad),
-        y: player.y - 30 * Math.cos(rotationRad),
-        rotation: player.rotation - 90,
-        size: 12,
-        creationTime: currentTime,
-        duration: 1000
-      });
-    });
+      fireProjectile(player);
+    });    
 
     socket.on('upgrade', (upgrade) => {
       var player = players.find((player) => player.id === socket.id);
@@ -167,6 +152,40 @@ async function main() {
 
   setInterval(tick, 1000 / TICK_RATE);
 }
+
+function fireProjectile(player) {
+  const currentTime = Date.now();
+
+  if (currentTime - player.lastShotTime >= player.fireCooldown) {
+    var rotationRad = player.rotation * Math.PI / 180;
+
+    var duration = 1400;
+
+    projectiles.push({
+      id: player.id,
+      x: player.x + 35 * Math.sin(-rotationRad),
+      y: player.y + 35 * Math.cos(rotationRad),
+      rotation: player.rotation + 90,
+      size: 12,
+      creationTime: currentTime,
+      duration: duration
+    });
+
+    projectiles.push({
+      id: player.id,
+      x: player.x - 35 * Math.sin(-rotationRad),
+      y: player.y - 35 * Math.cos(rotationRad),
+      rotation: player.rotation - 90,
+      size: 12,
+      creationTime: currentTime,
+      duration: duration
+    });
+
+
+    player.lastShotTime = currentTime;
+  }
+}
+
 
 app.use(express.static("public"));
 

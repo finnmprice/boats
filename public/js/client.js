@@ -47,7 +47,8 @@ function fireProjectile() {
 
 const inputs = {
     left: false,
-    right: false
+    right: false,
+    e: false
 }
 
 window.addEventListener('resize', () => {
@@ -55,13 +56,15 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
-
 window.addEventListener('keydown', (e) => {
     if(e.key === 'a' || e.key === 'ArrowLeft') {
         inputs.left = true;
     }
     if(e.key === 'd' || e.key === 'ArrowRight') {
         inputs.right = true;
+    }
+    if(e.key === 'e') {
+        inputs.e = !inputs.e;
     }
     if(e.key === ' ') {
         fireProjectile();
@@ -128,7 +131,7 @@ function loop() {
         canvas.font = "32px doblon";
         canvas.fillStyle = 'white';
         canvas.strokeStyle = 'black';
-        canvas.lineWidth = 3;
+        canvas.lineWidth = 4;
         canvas.textAlign = 'center';
         var text = player.username;
         canvas.strokeText(text, 0, -55);
