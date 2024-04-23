@@ -1,4 +1,7 @@
+const shipId = sessionStorage.getItem('shipId');
 const socket = io('ws://localhost:3000');
+
+console.log(shipId);
 
 const gridImage = new Image();
 gridImage.src = '/style/images/gridImage.png'
@@ -22,6 +25,16 @@ const PLAYER_SIZE = TILE_SIZE * 3;
 
 socket.on('connect', () => {
     console.log('connected')
+    socket.emit('updateId', shipId);
+})
+
+socket.on('no-player', () => {
+    window.location.href = '/';
+});
+
+socket.on('id-updated', () => {
+    console.log('id updated');
+    console.log(socket.id)
 })
 
 socket.on('players', (serverPlayers) => {
@@ -34,7 +47,6 @@ socket.on('projectiles', (serverProjectiles) => {
 
 socket.on('coinUpdate', (coinsNew) => {
     coins = coinsNew;
-    console.log(coins)
 })
 
 window.addEventListener('click', () => {

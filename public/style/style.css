@@ -14,6 +14,7 @@ body {
     padding: 0;
     background: var(--background);
     font-family: doblon;
+    user-select: none;
 }
 
 #title1, #title2{

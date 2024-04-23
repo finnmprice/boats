@@ -46,40 +46,40 @@ function tick() {
     io.emit('projectiles', projectiles);
   }
 
-
   for (const player of players) {
     const inputs = inputsMap[player.id];
-    if (inputs.right) {
-      player.rotation += (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades.turnSpeed.level) * deltaTime;
-      player.rotation %= 360;
-    }
-
-    if (inputs.left) {
-      player.rotation -= (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades.turnSpeed.level) * deltaTime;
-      if (player.rotation < 0) {
-        player.rotation += 360;
+    if (inputs) {
+      if (inputs.right) {
+        player.rotation += (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades.turnSpeed.level) * deltaTime;
+        player.rotation %= 360;
       }
+  
+      if (inputs.left) {
+        player.rotation -= (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades.turnSpeed.level) * deltaTime;
+        if (player.rotation < 0) {
+          player.rotation += 360;
+        }
+      }
+  
+      if (inputs.e) {
+        fireProjectile(player)
+      }
+  
+      const angleInRadians = player.rotation * Math.PI / 180;
+      const dx = Math.cos(angleInRadians) * moveSpeed * deltaTime;
+      const dy = Math.sin(angleInRadians) * moveSpeed * deltaTime;
+  
+      player.x += dx;
+      player.y += dy;
+  
+      let maxBounds = 100 * 32;
+  
+      if (player.x < 0) player.x = 0;
+      if (player.y < 0) player.y = 0;
+      if (player.x > maxBounds) player.x = maxBounds;
+      if (player.y > maxBounds) player.y = maxBounds;
     }
-
-    if (inputs.e) {
-      fireProjectile(player)
-    }
-
-    const angleInRadians = player.rotation * Math.PI / 180;
-    const dx = Math.cos(angleInRadians) * moveSpeed * deltaTime;
-    const dy = Math.sin(angleInRadians) * moveSpeed * deltaTime;
-
-    player.x += dx;
-    player.y += dy;
-
-    let maxBounds = 100 * 32;
-
-    if (player.x < 0) player.x = 0;
-    if (player.y < 0) player.y = 0;
-    if (player.x > maxBounds) player.x = maxBounds;
-    if (player.y > maxBounds) player.y = maxBounds;
   }
-
   io.emit('players', players);
 }
 
@@ -97,25 +97,40 @@ async function main() {
       coins: 0
     });
 
-    players.push({
-      id: socket.id,
-      x: 100 * 32 / 2,
-      y: 100 * 32 / 2,
-      rotation: 0,
-      health: 100,
-      upgrades: {
-        hullStrength: { name: "hull strength", level: 0 },
-        autoRepair: { name: "auto repair", level: 0 },
-        cannonRange: { name: "cannon range", level: 0 },
-        cannonDamage: { name: "cannon damage", level: 0 },
-        reloadSpeed: { name: "reload speed", level: 0 },
-        turnSpeed: { name: "turn speed", level: 0 },
-        viewDistance: { name: "view distance", level: 0 }
-      },
-      lastShotTime: 500,
-      fireCooldown: 400,
-      coins: 0,
-      username: "SPOOF"
+    socket.on('player-join', (shipInfo) => {
+      console.log(shipInfo.shipId)
+      players.push({
+        id: shipInfo.shipId,
+        x: 100 * 32 / 2,
+        y: 100 * 32 / 2,
+        rotation: 0,
+        health: 100,
+        upgrades: {
+          hullStrength: { name: "hull strength", level: 0 },
+          autoRepair: { name: "auto repair", level: 0 },
+          cannonRange: { name: "cannon range", level: 0 },
+          cannonDamage: { name: "cannon damage", level: 0 },
+          reloadSpeed: { name: "reload speed", level: 0 },
+          turnSpeed: { name: "turn speed", level: 0 },
+          viewDistance: { name: "view distance", level: 0 }
+        },
+        lastShotTime: 500,
+        fireCooldown: 400,
+        coins: 0,
+        username: shipInfo.username
+      });
+      socket.emit('player-joined')
+    }); 
+
+    socket.on('updateId', (shipId) => {
+      var player = players.find((player) => player.id === shipId);
+      if (player) {
+        player.id = socket.id;
+        socket.emit('id-updated', player.id);
+      }
+      else {
+        socket.emit('no-player');
+      }
     });
     
     socket.on('inputs', (inputs) => {
