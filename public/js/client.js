@@ -81,14 +81,17 @@ window.addEventListener('keydown', (e) => {
     if(e.key === ' ') {
         fireProjectile();
     }
-    if(e.key === 'v') {
-        socket.emit('upgrade', 'turnSpeed');
-    }
     if(e.key === 'c') {
         socket.emit('giveCoins', 100);
     }
+
+    if (e.key >= '1' && e.key <= '7') {
+        socket.emit('upgrade', e.key);
+    }
+
     socket.emit('inputs', inputs);
-})
+});
+
 
 window.addEventListener('keyup', (e) => {
     if(e.key === 'a' || e.key === 'ArrowLeft') {
@@ -174,14 +177,17 @@ function loop() {
             canvas.fillStyle = 'rgba(255, 255, 255, 0.5)';
             canvas.fillText(levelText, startX + nameWidth, 117 + i * 30);
         }
-        
+
+        // minimap
+        roundedRect(canvasEl.width - 110, canvasEl.height - 110, 100, 100, 5, 'rgba(0, 0, 0, 0.5)');
+        drawCircle(canvasEl.width - 105 + (myPlayer.x / (MAP_SIZE * TILE_SIZE)) * 90, canvasEl.height - 105 + (myPlayer.y / (MAP_SIZE * TILE_SIZE)) * 90, 3, "rgba(255, 255, 255, 0.5)", false);
     }
     
     // projectiles
     for(const projectile of projectiles) {
         canvas.save();
         canvas.translate(projectile.x - camX, projectile.y - camY);
-        drawCircle(0, 0, projectile.size, '#6e6c6e');
+        drawCircle(0, 0, projectile.size, '#6e6c6e', true);
         canvas.restore();
     };
 
@@ -235,14 +241,14 @@ function roundedRect(x, y, width, height, radius, color) {
     canvas.fill();
 }
 
-function drawCircle(x, y, size, color) {
+function drawCircle(x, y, size, color, border) {
     canvas.beginPath();
     canvas.arc(x, y, size, 0, Math.PI * 2);
     canvas.fillStyle = color;
     canvas.fill();
     canvas.strokeStyle = 'black';
     canvas.lineWidth = 1.5;
-    canvas.stroke();
+    if(border) {canvas.stroke();}
     canvas.closePath();
   }
 

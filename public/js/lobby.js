@@ -20,6 +20,7 @@ $('#username-input').keypress(function(event){
 
 $('#start-button').on('click', () => {
     var username = $('#username-input').val();
+    if (username.trim() == '') {return}
     if(!username.length <= 15 && !username.length > 0) {return}
     socket.emit('player-join', {username: username, shipId: shipId});
 })

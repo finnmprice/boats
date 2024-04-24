@@ -40,18 +40,25 @@ function tick() {
 
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const projectile = projectiles[i];
+    var player = players.find((player) => player.id === projectile.id);
     
     const angleInRadians = projectile.rotation * Math.PI / 180;
-    const dy = Math.sin(angleInRadians) * 300 * deltaTime;
-    const dx = Math.cos(angleInRadians) * 300 * deltaTime;
+    const dy = Math.sin(angleInRadians) * 250 * deltaTime;
+    const dx = Math.cos(angleInRadians) * 250 * deltaTime;
     projectile.x += dx;
     projectile.y += dy;
     
     const currentTime = Date.now();
-    if (currentTime - projectile.creationTime >= projectile.duration) {
+
+    if(player) {
+      if (currentTime - projectile.creationTime >= projectile.duration + (player.upgrades[upgrade.cannonRange].level * 150)) {
+        projectiles.splice(i, 1);
+      }
+    }
+    else {
       projectiles.splice(i, 1);
     }
-
+    
     io.emit('projectiles', projectiles);
   }
 
@@ -102,7 +109,12 @@ async function main() {
     }
 
     socket.on('player-join', (shipInfo) => {
-      console.log(shipInfo.shipId)
+      username = shipInfo.username.substring(0, 15).trim();
+
+      if(username == '') {
+        username = 'unnamed ship'
+      }
+
       players.push({
         id: shipInfo.shipId,
         x: 100 * 32 / 2,
@@ -120,9 +132,8 @@ async function main() {
         ],
         upgradesCount: 0,
         lastShotTime: 500,
-        fireCooldown: 400,
         coins: 0,
-        username: shipInfo.username
+        username: username
       });
       socket.emit('player-joined')
     }); 
@@ -155,7 +166,7 @@ async function main() {
     socket.on('upgrade', (toUpgrade) => {
       var player = players.find((player) => player.id === socket.id);
 
-      var toUpgrade = player.upgrades[upgrade[toUpgrade]]
+      var toUpgrade = player.upgrades[toUpgrade - 1]
       
       if(toUpgrade.level < 10 && player.coins >= 10 * (toUpgrade.level + 1) && player.upgradesCount <= 75) {
         toUpgrade.level++;
@@ -176,7 +187,7 @@ async function main() {
 function fireProjectile(player) {
   const currentTime = Date.now();
 
-  if (currentTime - player.lastShotTime >= player.fireCooldown) {
+  if (currentTime - player.lastShotTime >= 500 - player.upgrades[upgrade.reloadSpeed].level * 20) {
     var rotationRad = player.rotation * Math.PI / 180;
 
     var duration = 1400;
