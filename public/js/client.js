@@ -7,7 +7,9 @@ const gridImage = new Image();
 gridImage.src = '/style/images/gridImage.png'
 
 const boat = new Image();
-boat.src = '/style/images/boat.png'
+boat.src = '/style/images/boat.png';
+
+var playerConnected = false;
 
 const canvasEl = document.getElementById("canvas");
 canvasEl.width = window.innerWidth;
@@ -24,7 +26,6 @@ const MAP_SIZE = 100;
 const PLAYER_SIZE = TILE_SIZE * 3;
 
 socket.on('connect', () => {
-    console.log('connected')
     socket.emit('updateId', shipId);
 })
 
@@ -33,9 +34,8 @@ socket.on('no-player', () => {
 });
 
 socket.on('id-updated', () => {
-    console.log('id updated');
-    console.log(socket.id)
-})
+    playerConnected = true;
+});
 
 socket.on('players', (serverPlayers) => {
     players = serverPlayers;
@@ -122,14 +122,70 @@ function loop() {
                 TILE_SIZE);
         }
     }
+
+    // UI
+    roundedRect(20, 20, 190, 35, 5, 'rgba(0, 0, 0, 0.4)');
+    roundedRect(20, 60, 190, 35, 5, 'rgba(0, 0, 0, 0.4)');
     
+    if(playerConnected && myPlayer) {
+        // coins text
+        canvas.font = "16px doblon";
+        canvas.strokeStyle = 'black';
+        canvas.textAlign = 'center'; 
+        var coinsText = "coins";
+        var coinsValueText = `$${myPlayer.coins}`;
+        var coinsTextWidth = canvas.measureText(coinsText).width;
+        var coinsValueTextWidth = canvas.measureText(coinsValueText).width;
+        var totalWidth = coinsTextWidth + coinsValueTextWidth;
+        var startX = 130 - (totalWidth / 2);
+        canvas.fillStyle = 'white';
+        canvas.fillText(coinsText, startX, 43);
+        var coinsValueStartX = startX + coinsTextWidth - 15;
+        canvas.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        canvas.textAlign = 'left'; 
+        canvas.fillText(coinsValueText, coinsValueStartX, 43);
+        
+        // upgrade count
+        canvas.font = "16px doblon";
+        canvas.fillStyle = 'white';
+        canvas.textAlign = 'center';
+        canvas.fillText(`Upgrades ${myPlayer.upgradesCount}/75`, 115, 83);
+
+        // upgrade bars
+        for (let i = 0; i < 7; i++) {
+            var upgrade = myPlayer.upgrades[i];
+            var coins = upgrade.level < 10 ? '$' + (upgrade.level + 1) * 10: 'max';
+            
+            roundedRect(20, 10 * (i + 1) + i * 20 + 90, 160, 25, 5, 'rgba(0, 0, 0, 0.4)');
+            
+            canvas.font = "12px doblon";
+            canvas.strokeStyle = 'black';
+            canvas.lineWidth = 0;
+            var nameText = upgrade.name;
+            var levelText = ` ${coins}`;
+            const nameWidth = canvas.measureText(nameText).width;
+            const levelWidth = canvas.measureText(levelText).width;
+            const totalWidth = nameWidth + levelWidth;
+            const startX = 100 - (totalWidth / 2);
+            canvas.fillStyle = 'white';
+            canvas.textAlign = 'left';
+            canvas.fillText(nameText, startX, 117 + i * 30);
+            canvas.fillText(i + 1, 190, 117 + i * 30);
+            canvas.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            canvas.fillText(levelText, startX + nameWidth, 117 + i * 30);
+        }
+        
+    }
+    
+    // projectiles
     for(const projectile of projectiles) {
         canvas.save();
         canvas.translate(projectile.x - camX, projectile.y - camY);
         drawCircle(0, 0, projectile.size, '#6e6c6e');
         canvas.restore();
     };
-    
+
+    // players
     for(const player of players) {
         canvas.save();
         canvas.translate(player.x - camX, player.y - camY);
@@ -159,12 +215,11 @@ function loop() {
         canvas.restore();
     }
     
-    
     window.requestAnimationFrame(loop);
 }
 
 
-function roundedRect(x, y, width, height, radius) {
+function roundedRect(x, y, width, height, radius, color) {
     canvas.beginPath();
     canvas.moveTo(x + radius, y);
     canvas.lineTo(x + width - radius, y);
@@ -176,6 +231,7 @@ function roundedRect(x, y, width, height, radius) {
     canvas.lineTo(x, y + radius);
     canvas.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5);
     canvas.closePath();
+    canvas.fillStyle = color;
     canvas.fill();
 }
 

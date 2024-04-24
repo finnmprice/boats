@@ -11,10 +11,19 @@ const TICK_RATE = 90;
 
 let players = [];
 let projectiles = [];
-let playerCoins = [];
 let inputsMap = {};
 
 const moveSpeed = 125;
+
+const upgrade = {
+  hullStrength: 0,
+  autoRepair: 1,
+  cannonRange: 2,
+  cannonDamage: 3,
+  reloadSpeed: 4,
+  turnSpeed: 5,
+  viewDistance: 6
+}
 
 const baseRotSpeed = 90;
 
@@ -50,12 +59,12 @@ function tick() {
     const inputs = inputsMap[player.id];
     if (inputs) {
       if (inputs.right) {
-        player.rotation += (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades.turnSpeed.level) * deltaTime;
+        player.rotation += (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades[upgrade.turnSpeed].level) * deltaTime;
         player.rotation %= 360;
       }
   
       if (inputs.left) {
-        player.rotation -= (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades.turnSpeed.level) * deltaTime;
+        player.rotation -= (baseRotSpeed + upgradeMultipliers.turnSpeed * player.upgrades[upgrade.turnSpeed].level) * deltaTime;
         if (player.rotation < 0) {
           player.rotation += 360;
         }
@@ -92,11 +101,6 @@ async function main() {
       left: false
     }
 
-    playerCoins.push({
-      id: socket.id,
-      coins: 0
-    });
-
     socket.on('player-join', (shipInfo) => {
       console.log(shipInfo.shipId)
       players.push({
@@ -105,15 +109,16 @@ async function main() {
         y: 100 * 32 / 2,
         rotation: 0,
         health: 100,
-        upgrades: {
-          hullStrength: { name: "hull strength", level: 0 },
-          autoRepair: { name: "auto repair", level: 0 },
-          cannonRange: { name: "cannon range", level: 0 },
-          cannonDamage: { name: "cannon damage", level: 0 },
-          reloadSpeed: { name: "reload speed", level: 0 },
-          turnSpeed: { name: "turn speed", level: 0 },
-          viewDistance: { name: "view distance", level: 0 }
-        },
+        upgrades: [
+          { name: "Hull Strength", level: 0 },
+          { name: "Auto Repair", level: 0 },
+          { name: "Cannon range", level: 0 },
+          { name: "Cannon Damage", level: 0 },
+          { name: "Reload Speed", level: 0 },
+          { name: "Turn Speed", level: 0 },
+          { name: "View Distance", level: 0 }
+        ],
+        upgradesCount: 0,
         lastShotTime: 500,
         fireCooldown: 400,
         coins: 0,
@@ -126,7 +131,7 @@ async function main() {
       var player = players.find((player) => player.id === shipId);
       if (player) {
         player.id = socket.id;
-        socket.emit('id-updated', player.id);
+        socket.emit('id-updated');
       }
       else {
         socket.emit('no-player');
@@ -138,8 +143,8 @@ async function main() {
     });
 
     socket.on('giveCoins', (coins) => {
-      var playerCoin = playerCoins.find((playerCoin) => playerCoin.id === socket.id);
-      playerCoin.coins += coins;
+      var player = players.find((player) => player.id === socket.id);
+      player.coins += coins;
     });
 
     socket.on('fireProjectile', (projectile) => {
@@ -147,16 +152,16 @@ async function main() {
       fireProjectile(player);
     });    
 
-    socket.on('upgrade', (upgrade) => {
+    socket.on('upgrade', (toUpgrade) => {
       var player = players.find((player) => player.id === socket.id);
-      var playerCoin = playerCoins.find((playerCoin) => playerCoin.id === socket.id);
 
-      var upgrade = player.upgrades[upgrade]
+      var toUpgrade = player.upgrades[upgrade[toUpgrade]]
       
-      if(upgrade.level < 10 && playerCoin.coins >= 10 * (upgrade.level + 1)) {
-        upgrade.level++;
-        playerCoin.coins -= 10 * upgrade.level;
-        socket.emit('coinUpdate', playerCoin.coins)
+      if(toUpgrade.level < 10 && player.coins >= 10 * (toUpgrade.level + 1) && player.upgradesCount <= 75) {
+        toUpgrade.level++;
+        player.coins -= 10 * toUpgrade.level;
+        player.upgradesCount++;
+        socket.emit('coinUpdate', player.coins)
       }
     })
 
