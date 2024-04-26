@@ -126,11 +126,59 @@ function loop() {
         }
     }
 
+    drawProjectiles(camX, camY)
+    drawPlayers(camX, camY)
+    drawUI(myPlayer)
+
     // UI
-    roundedRect(20, 20, 190, 35, 5, 'rgba(0, 0, 0, 0.4)');
-    roundedRect(20, 60, 190, 35, 5, 'rgba(0, 0, 0, 0.4)');
-    
+    window.requestAnimationFrame(loop);
+}
+
+function drawProjectiles(camX, camY) {
+    for(const projectile of projectiles) {
+        canvas.save();
+        canvas.translate(projectile.x - camX, projectile.y - camY);
+        drawCircle(0, 0, projectile.size, '#6e6c6e', true);
+        canvas.restore();
+    };
+}
+
+function drawPlayers(camX, camY) {
+    for(const player of players) {
+        canvas.save();
+        canvas.translate(player.x - camX, player.y - camY);
+        canvas.rotate((player.rotation + 90) * Math.PI / 180);
+        canvas.translate(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2);
+        canvas.drawImage(boat, 0, 0, PLAYER_SIZE, PLAYER_SIZE);
+        canvas.restore();
+        
+        canvas.save();
+        canvas.translate(player.x - camX, player.y - camY);
+        canvas.font = "32px doblon";
+        canvas.fillStyle = 'white';
+        canvas.strokeStyle = 'black';
+        canvas.lineWidth = 4;
+        canvas.textAlign = 'center';
+        var text = player.username;
+        canvas.strokeText(text, 0, -55);
+        canvas.fillText(text, 0, -55);
+        canvas.restore();
+        
+        canvas.save();
+        canvas.translate(player.x - camX, player.y - camY);
+        canvas.fillStyle = '#4d4c4c';
+        roundedRect(-75 / 2, 0 + 55, 75, 15, 6);
+        canvas.fillStyle = '#79d544';
+        roundedRect(-68 / 2, 0 + 55 + 7.5 / 2, player.health * 0.68, 7.5, 7.5/2);
+        canvas.restore();
+    }
+}
+
+function drawUI(myPlayer) {
     if(playerConnected && myPlayer) {
+        roundedRect(20, 20, 190, 35, 5, 'rgba(0, 0, 0, 0.4)');
+        roundedRect(20, 60, 190, 35, 5, 'rgba(0, 0, 0, 0.4)');
+        
         // coins text
         canvas.font = "16px doblon";
         canvas.strokeStyle = 'black';
@@ -182,46 +230,6 @@ function loop() {
         roundedRect(canvasEl.width - 110, canvasEl.height - 110, 100, 100, 5, 'rgba(0, 0, 0, 0.5)');
         drawCircle(canvasEl.width - 105 + (myPlayer.x / (MAP_SIZE * TILE_SIZE)) * 90, canvasEl.height - 105 + (myPlayer.y / (MAP_SIZE * TILE_SIZE)) * 90, 3, "rgba(255, 255, 255, 0.5)", false);
     }
-    
-    // projectiles
-    for(const projectile of projectiles) {
-        canvas.save();
-        canvas.translate(projectile.x - camX, projectile.y - camY);
-        drawCircle(0, 0, projectile.size, '#6e6c6e', true);
-        canvas.restore();
-    };
-
-    // players
-    for(const player of players) {
-        canvas.save();
-        canvas.translate(player.x - camX, player.y - camY);
-        canvas.rotate((player.rotation + 90) * Math.PI / 180);
-        canvas.translate(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2);
-        canvas.drawImage(boat, 0, 0, PLAYER_SIZE, PLAYER_SIZE);
-        canvas.restore();
-        
-        canvas.save();
-        canvas.translate(player.x - camX, player.y - camY);
-        canvas.font = "32px doblon";
-        canvas.fillStyle = 'white';
-        canvas.strokeStyle = 'black';
-        canvas.lineWidth = 4;
-        canvas.textAlign = 'center';
-        var text = player.username;
-        canvas.strokeText(text, 0, -55);
-        canvas.fillText(text, 0, -55);
-        canvas.restore();
-        
-        canvas.save();
-        canvas.translate(player.x - camX, player.y - camY);
-        canvas.fillStyle = '#4d4c4c';
-        roundedRect(-75 / 2, 0 + 55, 75, 15, 6);
-        canvas.fillStyle = '#79d544';
-        roundedRect(-68 / 2, 0 + 55 + 7.5 / 2, player.health * 0.68, 7.5, 7.5/2);
-        canvas.restore();
-    }
-    
-    window.requestAnimationFrame(loop);
 }
 
 
