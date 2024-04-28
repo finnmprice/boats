@@ -208,6 +208,9 @@ function drawUI(myPlayer) {
             var coins = upgrade.level < 10 ? '$' + (upgrade.level + 1) * 10: 'max';
             
             roundedRect(20, 10 * (i + 1) + i * 20 + 90, 160, 25, 5, 'rgba(0, 0, 0, 0.4)');
+            if(upgrade.level > 0) {
+                roundedRect(25, 10 * (i + 1) + i * 20 + 95, 150 * upgrade.level / 10, 15, 5, 'rgba(255, 255, 255, 0.4)');
+            }
             
             canvas.font = "12px doblon";
             canvas.strokeStyle = 'black';

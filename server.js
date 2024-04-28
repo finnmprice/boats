@@ -1,6 +1,7 @@
 const express = require('express');
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+import chalk from 'chalk';
 
 const app = express();
 const httpServer = createServer(app);
@@ -32,6 +33,8 @@ let lastTickTime = Date.now();
 const upgradeMultipliers = {
   turnSpeed: 5
 }
+
+console.log(chalk.greenBright('server started'));
 
 function tick() {
   const now = Date.now();
@@ -101,7 +104,7 @@ function tick() {
 
 async function main() {
   io.on('connect', (socket) => {
-    console.log("user connected", socket.id);
+    console.log(chalk.gray("user connected"), socket.id);
 
     inputsMap[socket.id] = {
       right: false,
@@ -109,7 +112,7 @@ async function main() {
     }
 
     socket.on('player-join', (shipInfo) => {
-      username = shipInfo.username.substring(0, 15).trim();
+      var username = shipInfo.username.substring(0, 15).trim();
 
       if(username == '') {
         username = 'unnamed ship'
